@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>67 Million AI Runs - Clay.com Impact Visualizations</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafbfc;
+            min-height: 100vh;
+            color: #1a1a1a;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Clay.com style background orbs */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: #ff6b6b;
+            top: -200px;
+            right: -100px;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: #4ecdc4;
+            bottom: -150px;
+            left: -100px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+        
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: #ffe66d;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: float 30s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 4em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #5d5fef 0%, #ff6b6b 50%, #4ecdc4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header .subtitle {
+            font-size: 1.4em;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-pill {
+            background: white;
+            border: 2px solid #e5e7eb;
+            padding: 20px 40px;
+            border-radius: 100px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-pill:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: #5d5fef;
+        }
+        
+        .stat-pill .number {
+            font-size: 2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5d5fef, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-pill .label {
+            font-size: 0.9em;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+        
+        .viz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .viz-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .viz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: #5d5fef;
+        }
+        
+        .viz-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #1a1a1a;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+        
+        .animated-counter {
+            font-size: 2.5em;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+            color: #5d5fef;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .clay-button {
+            background: linear-gradient(135deg, #5d5fef, #7c7ff2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(93, 95, 239, 0.3);
+        }
+        
+        .clay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(93, 95, 239, 0.4);
+            background: linear-gradient(135deg, #7c7ff2, #5d5fef);
+        }
+        
+        .clay-button.secondary {
+            background: white;
+            color: #5d5fef;
+            border: 2px solid #5d5fef;
+            box-shadow: none;
+        }
+        
+        .clay-button.secondary:hover {
+            background: #f3f4f6;
+            box-shadow: 0 4px 15px rgba(93, 95, 239, 0.2);
+        }
+        
+        .insight-box {
+            background: linear-gradient(135deg, #f3f4ff, #fff5f5);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .insight-box strong {
+            color: #5d5fef;
+            font-size: 1.1em;
+        }
+        
+        .progress-container {
+            margin: 30px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 40px;
+            background: #f3f4f6;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5d5fef, #ff6b6b, #4ecdc4);
+            width: 0%;
+            transition: width 0.1s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item:hover {
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transform: translateX(10px);
+        }
+        
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #5d5fef, #ff6b6b);
+            border-radius: 50%;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        /* Epic Journey Custom Visualizations */
+        .journey-viz-container {
+            height: 300px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+            border-radius: 16px;
+            border: 2px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Earth visualization */
+        .earth-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+        
+        .earth {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4ecdc4, #44a3aa);
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(78, 205, 196, 0.3);
+        }
+        
+        .continent {
+            position: absolute;
+            background: #228b22;
+            border-radius: 50%;
+        }
+        
+        .continent-1 {
+            width: 60px;
+            height: 80px;
+            top: 30px;
+            left: 40px;
+            transform: rotate(-20deg);
+        }
+        
+        .continent-2 {
+            width: 50px;
+            height: 60px;
+            bottom: 40px;
+            right: 30px;
+            transform: rotate(30deg);
+        }
+        
+        .walk-path {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px dashed #ff6b6b;
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .walk-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #5d5fef;
+        }
+        
+        /* Mountain visualization */
+        .mountain-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        .mountain {
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 200px solid #6b7280;
+            position: relative;
+            margin: 0 -50px;
+        }
+        
+        .mountain::after {
+            content: '';
+            position: absolute;
+            top: 80px;
+            left: -100px;
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 120px solid white;
+        }
+        
+        .mountain.small {
+            border-left-width: 60px;
+            border-right-width: 60px;
+            border-bottom-width: 120px;
+            opacity: 0.6;
+        }
+        
+        .climber {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.1s linear;
+        }
+        
+        .summit-flag {
+            position: absolute;
+            top: -20px;
+            left: -5px;
+            width: 30px;
+            height: 20px;
+            background: #ff6b6b;
+            clip-path: polygon(0 0, 100% 0, 80% 50%, 100% 100%, 0 100%);
+        }
+        
+        .summit-flag::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: 0;
+            width: 2px;
+            height: 40px;
+            background: #333;
+        }
+        
+        /* Music visualization */
+        .music-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .sound-bar {
+            width: 20px;
+            background: linear-gradient(to top, #5d5fef, #ff6b6b);
+            border-radius: 10px;
+            transition: height 0.3s ease;
+        }
+        
+        .play-count {
+            position: absolute;
+            bottom: 20px;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #5d5fef;
+        }
+        
+        #journeyDetail {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #6b7280;
+            text-align: center;
+            min-height: 30px;
+        }
+        
+        /* Comparison bars for Data Ops */
+        .comparison-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            gap: 15px;
+        }
+        
+        .comparison-label {
+            min-width: 150px;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        .comparison-bar-container {
+            flex: 1;
+            height: 30px;
+            background: #f3f4f6;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .comparison-bar-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.1s linear;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            .viz-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .stats-row {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background orbs -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>67,263,108 AI Runs</h1>
+            <div class="subtitle">Transforming RevOps at Scale with Clay.com</div>
+            
+            <div class="stats-row">
+                <div class="stat-pill">
+                    <div class="number">336M</div>
+                    <div class="label">Minutes Saved</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="number">5.6M</div>
+                    <div class="label">Hours Saved</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="number">233K</div>
+                    <div class="label">Days Saved</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="number">639.8</div>
+                    <div class="label">Years Saved</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="viz-grid">
+            <!-- Data Operations Visualization -->
+            <div class="viz-card">
+                <h2 class="viz-title">📊 Data Operations Impact</h2>
+                <div class="animated-counter" id="leadCounter">0 leads processed</div>
+                
+                <div id="dataOpsComparison">
+                    <div class="comparison-item">
+                        <div class="comparison-label">Your Clay</div>
+                        <div class="comparison-bar-container">
+                            <div class="comparison-bar-fill" id="clayBar" style="background: linear-gradient(90deg, #5d5fef, #7c7ff2); width: 0%;">0</div>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">Salesforce</div>
+                        <div class="comparison-bar-container">
+                            <div class="comparison-bar-fill" id="sfBar" style="background: #ff6b6b; width: 0%;">0</div>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">HubSpot</div>
+                        <div class="comparison-bar-container">
+                            <div class="comparison-bar-fill" id="hsBar" style="background: #4ecdc4; width: 0%;">0</div>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">Marketo</div>
+                        <div class="comparison-bar-container">
+                            <div class="comparison-bar-fill" id="mkBar" style="background: #ffe66d; width: 0%;">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="clay-button" onclick="animateDataOps()">Watch Lead Processing</button>
+                    <button class="clay-button secondary" onclick="resetDataOps()">Reset</button>
+                </div>
+                <div class="insight-box">
+                    <strong>112,105,180 lead records</strong> processed - more than Salesforce, HubSpot, and Marketo's combined quarterly volume! Watch as your automation outpaces the industry leaders.
+                </div>
+            </div>
+
+            <!-- Revenue Team Scale Visualization -->
+            <div class="viz-card">
+                <h2 class="viz-title">💰 Revenue Team Scale</h2>
+                <div class="animated-counter" id="revenueCounter">0 FTEs</div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="savingsBar">$0</div>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="clay-button" onclick="animateRevenue()">Build Team Comparison</button>
+                    <button class="clay-button secondary" onclick="resetRevenue()">Reset</button>
+                </div>
+                <div class="insight-box">
+                    <strong>2,697 FTEs for a full year</strong> - watch as the pie chart builds to show your automation equals more than Stripe, Datadog, and Snowflake's GTM teams combined!
+                </div>
+            </div>
+
+            <!-- Generational Time Visualization -->
+            <div class="viz-card">
+                <h2 class="viz-title">⏳ Generational Time Journey</h2>
+                <div class="timeline" id="historicalTimeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div>1384: Your automation time begins - Renaissance dawning</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div>1760s: Industrial Revolution transforms civilization</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div>1914-1945: Two World Wars reshape the globe</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div>1990s: Internet Age revolutionizes communication</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div>2024: Still 140 years remaining! 🚀</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="generationalChart"></canvas>
+                </div>
+                <div class="insight-box">
+                    <strong>639.8 years</strong> spanning 26 human generations - from medieval times through the digital revolution and beyond!
+                </div>
+            </div>
+
+            <!-- Epic Journeys Visualization -->
+            <div class="viz-card">
+                <h2 class="viz-title">🌍 Epic Journey Possibilities</h2>
+                <div class="animated-counter" id="journeyCounter">Choose Your Adventure</div>
+                
+                <div class="journey-viz-container" id="journeyViz">
+                    <!-- Dynamic visualization will be inserted here -->
+                </div>
+                
+                <div class="button-group">
+                    <button class="clay-button" onclick="showJourney('walk')">🚶 Earth Walks</button>
+                    <button class="clay-button" onclick="showJourney('everest')">🏔️ Everest Climbs</button>
+                    <button class="clay-button" onclick="showJourney('music')">🎵 Music Marathon</button>
+                </div>
+                <div id="journeyDetail"></div>
+                <div class="insight-box">
+                    <strong>233,552 days</strong> of pure time - enough for legendary feats that would echo through history!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js configuration
+        Chart.defaults.color = '#6b7280';
+        Chart.defaults.borderColor = '#e5e7eb';
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        
+        let revenueChart, generationalChart;
+        let animationIntervals = {};
+        
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+        
+        function initializeCharts() {
+            // Revenue Team Chart (Bar)
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Your Automation', 'Stripe GTM', 'Datadog GTM', 'Snowflake GTM'],
+                    datasets: [{
+                        label: 'Full-Time Employees',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: [
+                            '#5d5fef',
+                            '#ff6b6b',
+                            '#4ecdc4',
+                            '#ffe66d'
+                        ],
+                        borderColor: [
+                            '#5d5fef',
+                            '#ff6b6b',
+                            '#4ecdc4',
+                            '#ffe66d'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 0
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString() + ' FTEs';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000) {
+                                        return (value/1000) + 'K';
+                                    }
+                                    return value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Generational Time Chart
+            const genCtx = document.getElementById('generationalChart').getContext('2d');
+            generationalChart = new Chart(genCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1384', '1500', '1760', '1914', '1990', '2024'],
+                    datasets: [{
+                        label: 'Years of Time Saved',
+                        data: [0, 116, 376, 530, 606, 640],
+                        borderColor: '#5d5fef',
+                        backgroundColor: 'rgba(93, 95, 239, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#5d5fef',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Years'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Data Operations Animation
+        function animateDataOps() {
+            clearInterval(animationIntervals.dataOps);
+            
+            const targets = {
+                clay: 112105180,
+                salesforce: 35000000,
+                hubspot: 28000000,
+                marketo: 22000000
+            };
+            
+            const maxValue = targets.clay;
+            const duration = 8000; // 8 seconds for smooth progression
+            const steps = 200;
+            const stepTime = duration / steps;
+            let currentStep = 0;
+            
+            // Reset bars
+            resetDataOps();
+            
+            animationIntervals.dataOps = setInterval(() => {
+                currentStep++;
+                const progress = currentStep / steps;
+                
+                // Update counter
+                const currentLeads = Math.floor(targets.clay * progress);
+                document.getElementById('leadCounter').textContent = currentLeads.toLocaleString() + ' leads processed';
+                
+                // Update Clay bar
+                const clayPercent = progress * 100;
+                const clayBar = document.getElementById('clayBar');
+                clayBar.style.width = clayPercent + '%';
+                clayBar.textContent = (currentLeads / 1000000).toFixed(1) + 'M';
+                
+                // Update comparison bars based on their relative sizes
+                const sfPercent = (targets.salesforce / maxValue) * 100 * progress;
+                const sfBar = document.getElementById('sfBar');
+                sfBar.style.width = sfPercent + '%';
+                sfBar.textContent = ((targets.salesforce * progress) / 1000000).toFixed(1) + 'M';
+                
+                const hsPercent = (targets.hubspot / maxValue) * 100 * progress;
+                const hsBar = document.getElementById('hsBar');
+                hsBar.style.width = hsPercent + '%';
+                hsBar.textContent = ((targets.hubspot * progress) / 1000000).toFixed(1) + 'M';
+                
+                const mkPercent = (targets.marketo / maxValue) * 100 * progress;
+                const mkBar = document.getElementById('mkBar');
+                mkBar.style.width = mkPercent + '%';
+                mkBar.textContent = ((targets.marketo * progress) / 1000000).toFixed(1) + 'M';
+                
+                if (currentStep >= steps) {
+                    clearInterval(animationIntervals.dataOps);
+                    document.getElementById('leadCounter').textContent = '112,105,180 leads processed! 🚀';
+                }
+            }, stepTime);
+        }
+        
+        function resetDataOps() {
+            clearInterval(animationIntervals.dataOps);
+            document.getElementById('leadCounter').textContent = '0 leads processed';
+            document.getElementById('clayBar').style.width = '0%';
+            document.getElementById('clayBar').textContent = '0';
+            document.getElementById('sfBar').style.width = '0%';
+            document.getElementById('sfBar').textContent = '0';
+            document.getElementById('hsBar').style.width = '0%';
+            document.getElementById('hsBar').textContent = '0';
+            document.getElementById('mkBar').style.width = '0%';
+            document.getElementById('mkBar').textContent = '0';
+        }
+        
+        // Revenue Team Animation
+        function animateRevenue() {
+            clearInterval(animationIntervals.revenue);
+            
+            const targets = [2697, 800, 900, 700];
+            const totalFTEs = targets.reduce((a, b) => a + b, 0);
+            const duration = 8000;
+            const steps = 200;
+            const stepTime = duration / steps;
+            let currentStep = 0;
+            
+            // Reset chart
+            resetRevenue();
+            
+            animationIntervals.revenue = setInterval(() => {
+                currentStep++;
+                const progress = currentStep / steps;
+                
+                // Update counter
+                const currentFTEs = Math.floor(targets[0] * progress);
+                document.getElementById('revenueCounter').textContent = currentFTEs.toLocaleString() + ' FTEs';
+                
+                // Update pie chart data
+                const currentData = targets.map(val => Math.floor(val * progress));
+                revenueChart.data.datasets[0].data = currentData;
+                revenueChart.update('none');
+                
+                // Update savings bar
+                const currentSavings = 323.6 * progress;
+                const savingsBar = document.getElementById('savingsBar');
+                savingsBar.style.width = (progress * 100) + '%';
+                savingsBar.textContent = '$' + currentSavings.toFixed(1) + 'M';
+                
+                if (currentStep >= steps) {
+                    clearInterval(animationIntervals.revenue);
+                    document.getElementById('revenueCounter').textContent = '2,697 FTEs saved! 💰';
+                    savingsBar.textContent = '$323.6M saved! 🎉';
+                }
+            }, stepTime);
+        }
+        
+        function resetRevenue() {
+            clearInterval(animationIntervals.revenue);
+            revenueChart.data.datasets[0].data = [0, 0, 0, 0];
+            revenueChart.update();
+            document.getElementById('revenueCounter').textContent = '0 FTEs';
+            document.getElementById('savingsBar').style.width = '0%';
+            document.getElementById('savingsBar').textContent = '$0';
+        }
+        
+        // Epic Journey Visualizations
+        function showJourney(type) {
+            const container = document.getElementById('journeyViz');
+            const counter = document.getElementById('journeyCounter');
+            const detail = document.getElementById('journeyDetail');
+            
+            clearInterval(animationIntervals.journey);
+            
+            if (type === 'walk') {
+                container.innerHTML = `
+                    <div class="earth-container">
+                        <div class="earth">
+                            <div class="continent continent-1"></div>
+                            <div class="continent continent-2"></div>
+                        </div>
+                        <div class="walk-path"></div>
+                        <div class="walk-counter" id="walkCount">0 walks</div>
+                    </div>
+                `;
+                counter.textContent = 'Walking Around Earth';
+                detail.textContent = '🚶 Each rotation = multiple walks. Total: 194 circumnavigations!';
+                
+                let walks = 0;
+                const totalWalks = 194;
+                const duration = 7000; // 7 seconds total
+                const walksPerRotation = 20; // Show 20 walks per visual rotation
+                const updateInterval = 50;
+                const walksPerUpdate = totalWalks / (duration / updateInterval);
+                
+                animationIntervals.journey = setInterval(() => {
+                    walks += walksPerUpdate;
+                    const displayWalks = Math.floor(walks);
+                    document.getElementById('walkCount').textContent = displayWalks + ' walks';
+                    
+                    if (walks >= totalWalks) {
+                        clearInterval(animationIntervals.journey);
+                        document.getElementById('walkCount').textContent = '194 walks completed! 🌍';
+                        counter.textContent = '4,850,000 miles traveled!';
+                    }
+                }, updateInterval);
+                
+            } else if (type === 'everest') {
+                container.innerHTML = `
+                    <div class="mountain-container">
+                        <div class="mountain small"></div>
+                        <div class="mountain">
+                            <div class="summit-flag" style="opacity: 0;" id="flag"></div>
+                            <div class="climber" id="climber"></div>
+                        </div>
+                        <div class="mountain small"></div>
+                    </div>
+                `;
+                counter.textContent = 'Climbing Mount Everest';
+                detail.textContent = '🏔️ Ultra-fast climbing: reaching 11,677 summits in seconds!';
+                
+                let height = 0;
+                let climbs = 0;
+                const maxHeight = 180; // pixels
+                const totalClimbs = 11677;
+                const duration = 8000; // 8 seconds
+                const climbsPerSummit = Math.floor(totalClimbs / 10); // Show 10 visual climbs
+                const climber = document.getElementById('climber');
+                
+                animationIntervals.journey = setInterval(() => {
+                    height += 6; // Faster climbing
+                    climber.style.bottom = height + 'px';
+                    
+                    if (height >= maxHeight) {
+                        height = 0;
+                        climbs += climbsPerSummit;
+                        
+                        // Flash flag
+                        document.getElementById('flag').style.opacity = '1';
+                        setTimeout(() => {
+                            document.getElementById('flag').style.opacity = '0';
+                        }, 300);
+                        
+                        counter.textContent = climbs.toLocaleString() + ' summits reached!';
+                        
+                        if (climbs >= totalClimbs) {
+                            clearInterval(animationIntervals.journey);
+                            counter.textContent = '11,677 total summits! 🏔️';
+                            document.getElementById('flag').style.opacity = '1';
+                        }
+                    }
+                }, 20);
+                
+            } else if (type === 'music') {
+                container.innerHTML = `
+                    <div class="music-container">
+                        ${Array(10).fill().map(() => '<div class="sound-bar" style="height: 20px;"></div>').join('')}
+                        <div class="play-count" id="playCount">0 plays</div>
+                    </div>
+                `;
+                counter.textContent = 'Playing Bohemian Rhapsody';
+                detail.textContent = '🎵 56 million plays at hyperspeed - centuries of rock!';
+                
+                const bars = container.querySelectorAll('.sound-bar');
+                let plays = 0;
+                const totalPlays = 56052590;
+                const duration = 6000; // 6 seconds
+                const updateInterval = 50;
+                const playsPerUpdate = totalPlays / (duration / updateInterval);
+                
+                animationIntervals.journey = setInterval(() => {
+                    // Animate bars
+                    bars.forEach(bar => {
+                        bar.style.height = (20 + Math.random() * 180) + 'px';
+                    });
+                    
+                    plays += playsPerUpdate;
+                    const displayPlays = Math.floor(plays);
+                    
+                    if (displayPlays < 1000000) {
+                        document.getElementById('playCount').textContent = (displayPlays / 1000).toFixed(0) + 'K plays';
+                    } else {
+                        document.getElementById('playCount').textContent = (displayPlays / 1000000).toFixed(1) + 'M plays';
+                    }
+                    
+                    if (plays >= totalPlays) {
+                        clearInterval(animationIntervals.journey);
+                        document.getElementById('playCount').textContent = '56M plays! 🎵';
+                        counter.textContent = '5,646 days of music!';
+                    }
+                }, updateInterval);
+            }
+        }
+    </script>
+</body>
+</html>
